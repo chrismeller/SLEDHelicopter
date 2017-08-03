@@ -1,5 +1,6 @@
 ﻿using SLEDHelicopter.Client;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SLEDHelicopter.Client.Exception;
@@ -19,8 +20,9 @@ namespace SLEDHelicopter.Exporter
         public static async Task Run()
         {
             //await DownloadOne();
-            await DownloadAll(2015, 1438);
+            //await DownloadAll(2015, 1438);
             //await ShowFlights();
+            await Update();
         }
 
         public static async Task ShowFlights()
@@ -48,6 +50,19 @@ namespace SLEDHelicopter.Exporter
             {
                 Console.WriteLine("That flight does not exist!");
             }
+        }
+
+        public static async Task Update()
+        {
+            var service = new FlightService();
+            var latest = await service.GetLatest();
+
+            var year = Convert.ToInt32(latest.Split('-').First());
+            var num = Convert.ToInt32(latest.Split('-').Last());
+
+            Console.WriteLine("Starting update from {0}-{1}", year, (num + 1));
+
+            await DownloadAll(year, num + 1);
         }
 
         public static async Task DownloadAll(int? firstYear = 1993, int firstNum = 1001, int? lastYear = null, int? lastNum = null)

@@ -31,6 +31,15 @@ namespace SLEDHelicopter.Domain
             return flights.ToList();
         }
 
+        public async Task<string> GetLatest()
+        {
+            var connection = await _db.Get();
+
+            var latest = await connection.QueryAsync<string>("select max(lognumber) from flights");
+
+            return latest.First();
+        }
+
         public async Task AddFlight(SledFlight flight)
         {
             var connection = await _db.Get();
