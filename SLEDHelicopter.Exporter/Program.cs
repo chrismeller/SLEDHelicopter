@@ -98,7 +98,7 @@ namespace SLEDHelicopter.Exporter
 				    Title = "SLED Helicopter Flight " + x.LogNumber,
 				    LastUpdated = x.CompletedAt,
 				    AuthorName = "South Carolina Law Enforcement Division",
-				    Category = x.Aircraft,
+				    Category = $"Aircraft N{x.Aircraft}",
 			    }).ToList();
 
 			    var f = new AtomFeed()
