@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SLEDHelicopter.Data", "SLED
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SLEDHelicopter.Domain", "SLEDHelicopter.Domain\SLEDHelicopter.Domain.csproj", "{AEA4A325-A672-42D3-9D46-D508321D9C67}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SLEDHelicopter.Atom", "SLEDHelicopter.Atom\SLEDHelicopter.Atom.csproj", "{C2072EC9-87E5-4D1A-A53F-8CBE5888AE8F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,8 +35,15 @@ Global
 		{AEA4A325-A672-42D3-9D46-D508321D9C67}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AEA4A325-A672-42D3-9D46-D508321D9C67}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AEA4A325-A672-42D3-9D46-D508321D9C67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2072EC9-87E5-4D1A-A53F-8CBE5888AE8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2072EC9-87E5-4D1A-A53F-8CBE5888AE8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2072EC9-87E5-4D1A-A53F-8CBE5888AE8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2072EC9-87E5-4D1A-A53F-8CBE5888AE8F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0D4BE251-0450-4E87-A545-7E04F200E5F7}
 	EndGlobalSection
 EndGlobal
