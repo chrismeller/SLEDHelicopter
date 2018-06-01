@@ -114,7 +114,7 @@ namespace SLEDHelicopter.Exporter
 
 			    var feed = AtomFeedGenerator.GenerateFeed(f);
 
-			    await UploadFile("sledflights.xml", feed, "text/xml");
+			    await UploadFile("flights.xml", feed, "text/xml");
 			}
 	    }
 
@@ -233,7 +233,7 @@ namespace SLEDHelicopter.Exporter
 		    var storageAccount =
 			    CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
 		    var blobClient = storageAccount.CreateCloudBlobClient();
-		    var blobContainer = blobClient.GetContainerReference("opinions");
+		    var blobContainer = blobClient.GetContainerReference(CloudConfigurationManager.GetSetting("StorageContainerName"));
 
 		    var blob = blobContainer.GetBlockBlobReference(filename);
 
