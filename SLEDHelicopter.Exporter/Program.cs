@@ -120,7 +120,7 @@ namespace SLEDHelicopter.Exporter
 
 	    private static string BuildDescription(SledFlight flight)
 	    {
-		    var time = String.Join(flight.StartedAt.ToString("h"),
+		    var time = String.Join("", flight.StartedAt.ToString("%h"),
 			    (flight.StartedAt.ToString("mm") == "00") ? "" : flight.StartedAt.ToString(":mm"), flight.StartedAt.ToString("tt").ToLower());
 		    var date = flight.StartedAt.ToString("MMM d");
 
