@@ -51,6 +51,8 @@ namespace SLEDHelicopter.Domain
                 ToDate = flight.ToDate,
                 FromTime = flight.FromTime,
                 ToTime = flight.ToTime,
+				StartedAt = flight.StartedAt,
+				CompletedAt = flight.CompletedAt,
                 Aircraft = flight.Aircraft,
                 RequestingAgency = flight.RequestingAgency,
                 CallStatus = flight.CallStatus,
@@ -101,9 +103,9 @@ namespace SLEDHelicopter.Domain
 
             await connection.ExecuteAsync(new CommandDefinition(@"
 insert into Flights (
-    LogNumber, FromDate, ToDate, FromTime, ToTime, Aircraft, RequestingAgency, CallStatus, Nature1, Nature2, Nature3, County, Pilot1, Pilot2, PicTime1, Nvg1, PicTime2, Nvg2, InsHours1, InsApp1, InsHours2, InsApp2, Crew, Result, FlirUsed, MicrowaveUsed, WeaponInvolved, TotalFuel, Recoveries, Arrest, HobbsIn, HobbsOut, StartCounter_Initial, StartCounter_Additional, StartCounter_Total, RinCount_Initial, RinCount_Additional, RinCount_Total, Duration, AcTotal, Hoist_Initial, Hoist_Additional, Hoist_Total, Takeoff_Initial, Takeoff_Additional, Takeoff_Total, InspDue, MaintenanceRequired, ApprovedBy
+    LogNumber, FromDate, ToDate, FromTime, ToTime, StartedAt, CompletedAt, Aircraft, RequestingAgency, CallStatus, Nature1, Nature2, Nature3, County, Pilot1, Pilot2, PicTime1, Nvg1, PicTime2, Nvg2, InsHours1, InsApp1, InsHours2, InsApp2, Crew, Result, FlirUsed, MicrowaveUsed, WeaponInvolved, TotalFuel, Recoveries, Arrest, HobbsIn, HobbsOut, StartCounter_Initial, StartCounter_Additional, StartCounter_Total, RinCount_Initial, RinCount_Additional, RinCount_Total, Duration, AcTotal, Hoist_Initial, Hoist_Additional, Hoist_Total, Takeoff_Initial, Takeoff_Additional, Takeoff_Total, InspDue, MaintenanceRequired, ApprovedBy
 ) values (
-    @LogNumber, @FromDate, @ToDate, @FromTime, @ToTime, @Aircraft, @RequestingAgency, @CallStatus, @Nature1, @Nature2, @Nature3, @County, @Pilot1, @Pilot2, @PicTime1, @Nvg1, @PicTime2, @Nvg2, @InsHours1, @InsApp1, @InsHours2, @InsApp2, @Crew, @Result, @FlirUsed, @MicrowaveUsed, @WeaponInvolved, @TotalFuel, @Recoveries, @Arrest, @HobbsIn, @HobbsOut, @StartCounter_Initial, @StartCounter_Additional, @StartCounter_Total, @RinCount_Initial, @RinCount_Additional, @RinCount_Total, @Duration, @AcTotal, @Hoist_Initial, @Hoist_Additional, @Hoist_Total, @Takeoff_Initial, @Takeoff_Additional, @Takeoff_Total, @InspDue, @MaintenanceRequired, @ApprovedBy
+    @LogNumber, @FromDate, @ToDate, @FromTime, @ToTime, @StartedAt, @CompletedAt, @Aircraft, @RequestingAgency, @CallStatus, @Nature1, @Nature2, @Nature3, @County, @Pilot1, @Pilot2, @PicTime1, @Nvg1, @PicTime2, @Nvg2, @InsHours1, @InsApp1, @InsHours2, @InsApp2, @Crew, @Result, @FlirUsed, @MicrowaveUsed, @WeaponInvolved, @TotalFuel, @Recoveries, @Arrest, @HobbsIn, @HobbsOut, @StartCounter_Initial, @StartCounter_Additional, @StartCounter_Total, @RinCount_Initial, @RinCount_Additional, @RinCount_Total, @Duration, @AcTotal, @Hoist_Initial, @Hoist_Additional, @Hoist_Total, @Takeoff_Initial, @Takeoff_Additional, @Takeoff_Total, @InspDue, @MaintenanceRequired, @ApprovedBy
 );
 ", dbFlight));
 

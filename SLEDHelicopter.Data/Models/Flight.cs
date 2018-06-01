@@ -9,6 +9,8 @@ namespace SLEDHelicopter.Data.Models
         public string ToDate { get; set; }
         public string FromTime { get; set; }
         public string ToTime { get; set; }
+		public DateTimeOffset StartedAt { get; set; }
+		public DateTimeOffset CompletedAt { get; set; }
         public string Aircraft { get; set; }
         public string RequestingAgency { get; set; }
         public string CallStatus { get; set; }

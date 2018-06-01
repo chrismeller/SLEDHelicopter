@@ -39,6 +39,8 @@ create table Flights (
 	ToDate text, 
 	FromTime text, 
 	ToTime text, 
+	StartedAt text,
+	CompletedAt text,
 	Aircraft text, 
 	RequestingAgency text, 
 	CallStatus text, 

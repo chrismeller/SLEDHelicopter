@@ -199,8 +199,8 @@ namespace SLEDHelicopter.Client
                     InspDue = inspDue,
                     MaintenanceRequired = maintenanceRequired,
                     ApprovedBy = approvedBy,
-                    From = fromZoned.ToDateTimeOffset(),
-                    To = toZoned.ToDateTimeOffset()
+                    StartedAt = fromZoned.ToDateTimeOffset(),
+                    CompletedAt = toZoned.ToDateTimeOffset()
                 };
 
                 return flight;
