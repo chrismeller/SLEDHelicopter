@@ -1,10 +1,16 @@
 ﻿using SLEDHelicopter.Client;
 using System;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Azure;
 using SLEDHelicopter.Client.Exception;
 using SLEDHelicopter.Domain;
+using Microsoft.WindowsAzure.Storage;
+using SLEDHelicopter.Atom;
+using SLEDHelicopter.Client.DTOs;
 
 namespace SLEDHelicopter.Exporter
 {
@@ -14,16 +20,17 @@ namespace SLEDHelicopter.Exporter
         {
             Run().ConfigureAwait(false).GetAwaiter().GetResult();
             Console.WriteLine("Done!");
-            Console.ReadKey();
         }
 
         public static async Task Run()
         {
-            //await DownloadOne();
-            //await DownloadAll(2015, 1438);
-            //await ShowFlights();
-            await Update();
-        }
+			//await DownloadOne();
+			//await DownloadAll();
+			//await ShowFlights();
+			await Update();
+
+			//await GenerateFeed();
+		}
 
         public static async Task ShowFlights()
         {
@@ -54,16 +61,99 @@ namespace SLEDHelicopter.Exporter
 
         public static async Task Update()
         {
-            var service = new FlightService();
-            var latest = await service.GetLatest();
+	        using (var service = new FlightService())
+	        {
+		        var latest = await service.GetLatest();
 
-            var year = Convert.ToInt32(latest.Split('-').First());
-            var num = Convert.ToInt32(latest.Split('-').Last());
+				// if there is no latest flight, start from the beginning
+		        if (latest == null)
+		        {
+			        await DownloadAll();
+			        await GenerateFeed();
+			        return;
+		        }
 
-            Console.WriteLine("Starting update from {0}-{1}", year, (num + 1));
+		        var year = Convert.ToInt32(latest.Split('-').First());
+		        var num = Convert.ToInt32(latest.Split('-').Last());
 
-            await DownloadAll(year, num + 1);
+		        Console.WriteLine("Starting update from {0}-{1}", year, (num + 1));
+
+		        await DownloadAll(year, num + 1);
+
+		        await GenerateFeed();
+	        }
         }
+
+	    public static async Task GenerateFeed()
+	    {
+		    using (var service = new FlightService())
+		    {
+			    var flights = await service.GetFlightsForAtom(50);
+
+			    var items = flights.Select(x => new AtomFeedItem()
+			    {
+				    Id = Guid.Parse(Md5(x.LogNumber)),
+				    Link = new Uri("http://services.sled.sc.gov/Aviation/CopViewPublic2.aspx?LOGID=" + x.LogNumber),
+				    Summary = BuildDescription(x),
+				    Title = "SLED Helicopter Flight " + x.LogNumber,
+				    LastUpdated = x.CompletedAt,
+				    AuthorName = "South Carolina Law Enforcement Division",
+				    Category = x.Aircraft,
+			    }).ToList();
+
+			    var f = new AtomFeed()
+			    {
+				    AuthorName = "South Carolina Law Enforcement Division",
+				    Id = Guid.Parse("EFF7C905-20B3-49B7-9503-D67E181289A2"),
+				    LastUpdated = DateTimeOffset.UtcNow,
+				    Link = new Uri("http://www.sled.sc.gov"),
+				    //LinkSelf = new Uri("http://www.sled.sc.gov"),
+				    Title = "South Carolina Law Enforcement Division Helicopter Flight Log",
+				    Items = items
+			    };
+
+			    var feed = AtomFeedGenerator.GenerateFeed(f);
+
+			    await UploadFile("sledflights.xml", feed, "text/xml");
+			}
+	    }
+
+	    private static string BuildDescription(SledFlight flight)
+	    {
+		    var time = String.Join(flight.StartedAt.ToString("h"),
+			    (flight.StartedAt.ToString("mm") == "00") ? "" : flight.StartedAt.ToString(":mm"), flight.StartedAt.ToString("tt").ToLower());
+		    var date = flight.StartedAt.ToString("MMM d");
+
+		    var message = "";
+		    if (flight.FlirUsed.ToUpper() == "Y" && flight.MicrowaveUsed.ToUpper() == "Y")
+		    {
+			    message = "Both FLIR and Microwave were used";
+		    }
+			else if (flight.FlirUsed.ToUpper() != "Y" && flight.MicrowaveUsed.ToUpper() != "Y")
+		    {
+			    message = "Neither FLIR nor Microwave were used";
+		    }
+			else if (flight.FlirUsed.ToUpper() == "Y")
+		    {
+			    message = "FLIR was used";
+		    }
+		    else
+		    {
+			    message = "Microwave was used";
+		    }
+
+		    if (flight.WeaponInvolved.ToUpper() == "Y")
+		    {
+			    message = message + " and a weapon was involved.";
+		    }
+		    else
+		    {
+			    message = message + " and weapons were not involved.";
+		    }
+
+		    return
+			    $"At {time} on {date} I took off to assist {flight.RequestingAgency} with {flight.Nature1} in {flight.County} County. It took {flight.Duration} hours and {flight.TotalFuel} gallons of fuel. {message}";
+	    }
 
         public static async Task DownloadAll(int? firstYear = 1993, int firstNum = 1001, int? lastYear = null, int? lastNum = null)
         {
@@ -137,5 +227,41 @@ namespace SLEDHelicopter.Exporter
                 }
             } while (keepGoing);
         }
-    }
+
+	    private static async Task UploadFile(string filename, string contents, string contentType)
+	    {
+		    var storageAccount =
+			    CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
+		    var blobClient = storageAccount.CreateCloudBlobClient();
+		    var blobContainer = blobClient.GetContainerReference("opinions");
+
+		    var blob = blobContainer.GetBlockBlobReference(filename);
+
+		    await blob.UploadTextAsync(contents);
+
+		    if (blob.Properties.ContentType != contentType)
+		    {
+			    blob.Properties.ContentType = contentType;
+
+			    await blob.SetPropertiesAsync();
+		    }
+	    }
+
+	    private static string Md5(string input)
+	    {
+		    using (var md5 = MD5.Create())
+		    {
+			    var bytes = Encoding.UTF8.GetBytes(input);
+			    var hashBytes = md5.ComputeHash(bytes);
+
+			    var bc = BitConverter.ToString(hashBytes);
+
+			    // lowercase it and get a standardized 8-4-4-4-12 grouping
+			    // in opposite order so we don't have to offset for the -'s we've already added
+			    bc = bc.ToLower().Replace("-", "").Insert(20, "-").Insert(16, "-").Insert(12, "-").Insert(8, "-");
+
+			    return bc;
+		    }
+	    }
+	}
 }
