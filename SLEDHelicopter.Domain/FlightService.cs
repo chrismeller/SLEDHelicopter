@@ -31,6 +31,33 @@ namespace SLEDHelicopter.Domain
             return flights.ToList();
         }
 
+	    public async Task<List<SledFlight>> GetFlightsForAtom(int num)
+	    {
+		    var connection = await _db.Get();
+
+		    var dbFlights = await connection.QueryAsync<Flight>("select * from Flights order by lognumber desc");
+
+		    var flights = dbFlights.Take(num).Select(x => new SledFlight()
+		    {
+			    LogNumber = x.LogNumber,
+			    StartedAt = x.StartedAt,
+				CompletedAt = x.CompletedAt,
+			    RequestingAgency = x.RequestingAgency,
+			    Nature1 = x.Nature1,
+			    Nature2 = x.Nature2,
+			    Nature3 = x.Nature3,
+			    County = x.County,
+			    Duration = x.Duration,
+			    TotalFuel = x.TotalFuel,
+			    FlirUsed = x.FlirUsed,
+			    MicrowaveUsed = x.MicrowaveUsed,
+			    WeaponInvolved = x.WeaponInvolved,
+				Aircraft = x.Aircraft,
+		    });
+
+		    return flights.ToList();
+	    }
+
         public async Task<string> GetLatest()
         {
             var connection = await _db.Get();
