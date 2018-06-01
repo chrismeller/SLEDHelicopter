@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
@@ -40,8 +41,8 @@ namespace SLEDHelicopter.Domain
 		    var flights = dbFlights.Take(num).Select(x => new SledFlight()
 		    {
 			    LogNumber = x.LogNumber,
-			    StartedAt = x.StartedAt,
-				CompletedAt = x.CompletedAt,
+			    StartedAt = DateTimeOffset.ParseExact(x.StartedAt, "O", new CultureInfo("en-US")),
+				CompletedAt = DateTimeOffset.ParseExact(x.CompletedAt, "O", new CultureInfo("en-US")),
 			    RequestingAgency = x.RequestingAgency,
 			    Nature1 = x.Nature1,
 			    Nature2 = x.Nature2,
@@ -78,8 +79,8 @@ namespace SLEDHelicopter.Domain
                 ToDate = flight.ToDate,
                 FromTime = flight.FromTime,
                 ToTime = flight.ToTime,
-				StartedAt = flight.StartedAt,
-				CompletedAt = flight.CompletedAt,
+				StartedAt = flight.StartedAt.ToString("O"),
+				CompletedAt = flight.CompletedAt.ToString("O"),
                 Aircraft = flight.Aircraft,
                 RequestingAgency = flight.RequestingAgency,
                 CallStatus = flight.CallStatus,
