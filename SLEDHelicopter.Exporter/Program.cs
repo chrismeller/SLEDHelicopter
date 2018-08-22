@@ -1,5 +1,6 @@
 ﻿using SLEDHelicopter.Client;
 using System;
+using System.Configuration;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -61,7 +62,7 @@ namespace SLEDHelicopter.Exporter
 
         public static async Task Update()
         {
-	        using (var service = new FlightService())
+            using (var service = new FlightService())
 	        {
 		        var latest = await service.GetLatest();
 
@@ -157,7 +158,12 @@ namespace SLEDHelicopter.Exporter
 
         public static async Task DownloadAll(int? firstYear = 1993, int firstNum = 1001, int? lastYear = null, int? lastNum = null)
         {
-            var client = new SledClient();
+            var proxyHost = ConfigurationManager.AppSettings["Proxy.Host"];
+            var proxyPort = ConfigurationManager.AppSettings["Proxy.Port"];
+            var proxyUser = ConfigurationManager.AppSettings["Proxy.User"];
+            var proxyPass = ConfigurationManager.AppSettings["Proxy.Pass"];
+
+            var client = new SledClient(proxyHost, Convert.ToInt32(proxyPort), proxyUser, proxyPass);
             var service = new FlightService();
 
             var keepGoing = true;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using NodaTime;
@@ -14,9 +15,32 @@ namespace SLEDHelicopter.Client
         // http://services.sled.sc.gov/Aviation/CopViewPublic2.aspx?LOGID=1993-1001
         private const string BaseUrl = "http://services.sled.sc.gov/Aviation/CopViewPublic2.aspx";
 
+        private readonly HttpClientHandler _handler;
+
+        public SledClient(string proxyHost = null, int proxyPort = 80, string proxyUser = null, string proxyPass = null)
+        {
+            _handler = new HttpClientHandler();
+
+            if (proxyHost != null)
+            {
+                var proxy = new WebProxy()
+                {
+                    Address = new Uri($"{proxyHost}:{proxyPort}"),
+                };
+
+                if (proxyUser != null)
+                {
+                    proxy.Credentials = new NetworkCredential(proxyUser, proxyPass);
+                }
+
+                _handler.Proxy = proxy;
+                _handler.UseProxy = true;
+            }
+        }
+
         public async Task<SledFlight> Fetch(string logId)
         {
-            using (var http = new HttpClient())
+            using (var http = new HttpClient(_handler, false))
             {
                 var response = await http.GetStringAsync(string.Format("{0}?LOGID={1}", BaseUrl, logId));
 
